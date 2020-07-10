@@ -36,11 +36,14 @@ class Ocr:
             grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
             # smoothen image
             blur = cv2.GaussianBlur(grey, (13,13), 0)
+            # greyscale to b/w with BINARY_INV, THRES_OTSU finds threshold dynamically
             thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)[1]
-            # generate  rect kernel of (5,5)
+            # generate rect kernel of (5,5)
             kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+            # dialte -> thickens the characters
             dilate = cv2.dilate(thresh, kernel, iterations=4)
             # draw boundaries
+            # RETR_EXTERNAL -> outter most boundary, CHAIN_APPROX_SIMPLE -> stores just the 4 points(saves memory)
             contours = cv2.findContours(dilate, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             contours = contours[0] if len(contours) == 2 else contours[1]
             for contour in contours:
